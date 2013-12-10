@@ -23,10 +23,10 @@ class Message(models.Model):
         ("Drafts", "Drafts")
     )
     type = models.CharField(choices=type_choices, max_length=10)
-    raw_message = models.FileField()
+    raw_message = models.FileField(upload_to='msg')
 
 
 class MessagePart(models.Model):
     message = models.ForeignKey(to=Message)
     content_type = models.CharField(max_length=100)
-    file_path = models.FileField()
+    file_path = models.FileField(upload_to='msg_part')
