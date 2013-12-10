@@ -16,6 +16,13 @@ class Message(models.Model):
     owner = models.ForeignKey(to=User)
     date = models.DateTimeField()
     subject = models.TextField()
+    type_choices = (
+        ("Inbox", "Inbox"),
+        ("Sent", "Sent"),
+        ("Trash", "Trash"),
+        ("Drafts", "Drafts")
+    )
+    type = models.CharField(choices=type_choices, max_length=10)
     raw_message = models.FileField()
 
 

@@ -1,3 +1,5 @@
 *~
 .idea*
 storage.db
+local.py
+*.swp
