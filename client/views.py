@@ -25,7 +25,7 @@ def login(request):
             if user is not None:
                 auth.login(request, user)
                 messages.add_message(request, messages.SUCCESS, "Welcome: " + username)
-                return HttpResponseRedirect(redirect_to)
+                return HttpResponseRedirect(reverse('client'))
             else:
                 messages.add_message(request, messages.ERROR, "Error: no such pair login-password was found")
     else:
@@ -50,7 +50,7 @@ def register(request):
                 messages.add_message(request, messages.SUCCESS, "Registration completed successfully")
                 user = auth.authenticate(username=username, password=password)
                 auth.login(request, user)
-                return HttpResponseRedirect(redirect_to)
+                return HttpResponseRedirect(reverse('client'))
     else:
         form = LoginForm()
     return render_to_response(template_name='register.html',
@@ -61,17 +61,21 @@ def register(request):
 def client(request):
     return HttpResponseRedirect(reverse('inbox'))
 
+def show_list(request, type):
+    return render_to_response(template_name='interface.html',
+                              context_instance=RequestContext(request))
+
 def inbox(request):
-    return Http404()
+    return show_list(request, 'Inbox')
 
 def sent(request):
-    return Http404()
+    return show_list(request, 'Sent')
 
 def trash(request):
-    return Http404()
+    return show_list(request, 'Trash')
 
 def drafts(request):
-    return Http404()
+    return show_list(request, 'Drafts')
 
 def edit(request, pk):
     return Http404()

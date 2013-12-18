@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <div class="row">
+      <div class="col-sm-2">
+          <ul class="nav nav-pills nav-stacked">
+                <li><a href="{% url inbox %}">Inbox</a></li>
+                <li><a href="{% url sent %}">Sent</a></li>
+                <li><a href="{% url trash %}">Trash</a></li>
+                <li><a href="{% url drafts %}">Drafts</a></li>
+          </ul>
+      </div>
+      <div class="col-sm-10">
+        <div class="row">
+          <div class="btn-group">
+            <a href="{% url client %}" class="btn btn-default">New</a>
+            <button type="button" class="btn btn-default">Resend</button>
+            <button type="button" class="btn btn-default">Delete</button>
+          </div>
+        </div>
+        <div class="row">
+            {% block mail-content %}
+            {% endblock mail-content %}
+        </div>
+      </div>
+    </div>
+
+{% endblock content %}
