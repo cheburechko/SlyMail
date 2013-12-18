@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block title %}Вход{% endblock %}
+{% block head %}Вход{% endblock %}
+
+{% block content %}
+<form action='./?next={{ next }}' method='POST'>
+	{% csrf_token %}
+	{{ form.as_p }}
+	<input type='submit' value='Login'/>
+</form>
+
+<a href='{% url register %}?next={{ next }}'>Регистрация</a>
+{% endblock %}

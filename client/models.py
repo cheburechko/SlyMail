@@ -1,10 +1,12 @@
 from django.db import models
+from django.contrib.auth.models import User
 import os
 from SlyMail.settings import MESSAGE_PART_ROOT, MESSAGE_ROOT
 
-class User(models.Model):
-    nickname = models.CharField(max_length=30, primary_key=True);
-    password = models.CharField(max_length=128)
+
+class MailUser(models.Model):
+    user = models.OneToOneField(User)
+    # other data comes along
 
 
 class AddressBook(models.Model):
