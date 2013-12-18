@@ -1,5 +1,6 @@
 from django.db import models
-
+import os
+from SlyMail.settings import MESSAGE_PART_ROOT, MESSAGE_ROOT
 
 class User(models.Model):
     nickname = models.CharField(max_length=30, primary_key=True);
@@ -23,10 +24,15 @@ class Message(models.Model):
         ("Drafts", "Drafts")
     )
     type = models.CharField(choices=type_choices, max_length=10)
-    raw_message = models.FileField(upload_to='msg')
+    raw_message = models.FileField(upload_to=MESSAGE_ROOT)
+
+
+def get_upload_path(instance, filename):
+    return os.path.join(MESSAGE_PART_ROOT, instance.message.pk.__str__(), filename)
 
 
 class MessagePart(models.Model):
     message = models.ForeignKey(to=Message)
     content_type = models.CharField(max_length=100)
-    file_path = models.FileField(upload_to='msg_part')
+    file_path = models.FileField(upload_to=get_upload_path)
+    pass;
