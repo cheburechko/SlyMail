@@ -4,6 +4,7 @@ from client.models import Message, MessagePart, MailUser
 from django.core.exceptions import ObjectDoesNotExist
 from datetime import datetime
 from email.parser import Parser
+from email.header import decode_header
 from django.core.files.base import ContentFile
 import traceback
 
@@ -18,7 +19,6 @@ class MailSMTPServer(smtpd.SMTPServer):
             print 'Message addressed from:', mailfrom
             print 'Message addressed to  :', rcpttos
             print 'Message length        :', len(data)
-            print 'Message:\n', data
 
         for recipient in rcpttos:
             list = recipient.split('@')
@@ -34,8 +34,13 @@ class MailSMTPServer(smtpd.SMTPServer):
 
                 parser = Parser()
                 mail = parser.parsestr(data)
-                message.subject = mail['subject']
+                message.subject = mail['Subject']
                 message.type = "Inbox"
+
+                recipients = decode_header(mail['To'])
+                default_charset = 'ASCII'
+                message.recipients = u' '.join(unicode(head[0], head[1] or default_charset)
+                          for head in recipients)
 
                 # Save raw content just in case
                 message.save()
@@ -50,14 +55,14 @@ class MailSMTPServer(smtpd.SMTPServer):
                     msg_part = MessagePart()
                     msg_part.message = message
                     msg_part.content_type = part.get_content_type()
+                    part_data = part.get_payload(decode=True)
+                    msg_part.file_size = len(part_data)
                     msg_part.save()
 
-                    part_data = part.get_payload(decode=True)
                     part_name = part.get_filename(msg_part.pk.__str__())
                     msg_part.file_path.save(part_name,
                                             ContentFile(part_data))
                     msg_part.file_name = part_name;
-                    msg_part.file_size = len(part_data)
                     msg_part.save()
 
             except ObjectDoesNotExist:

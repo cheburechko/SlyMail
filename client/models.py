@@ -19,6 +19,7 @@ class Message(models.Model):
     owner = models.ForeignKey(to=MailUser)
     date = models.DateTimeField()
     subject = models.TextField()
+    recipients = models.CharField(max_length=1000)
     type_choices = (
         ("Inbox", "Inbox"),
         ("Sent", "Sent"),

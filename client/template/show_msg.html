@@ -1,10 +1,19 @@
 {% extends "interface.html" %}
 
 {% block mail-content %}
-    <div class="row-fluid">
-        {{ msg }}
+    <div class="row">
+      <h3>{{ subject }}</h3>
     </div>
+    <div class="row">
+      From: {{ sender }}
+    </div>
+    <div class="row">
+      To: {{ recipients }}
+    </div>
+    <div class="row">
+    <iframe src='{{ fetch }}' class="col-lg-12" height="300px"></iframe>
     {% for attachment in attachments %}
+    </div>
     <div class="form-row">
         <a href="{{ attachment.url }}">{{ attachment.name }}</a> - {{ attachment.size }}
     </div>
