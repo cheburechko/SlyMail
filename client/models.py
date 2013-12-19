@@ -16,7 +16,7 @@ class AddressBook(models.Model):
 
 class Message(models.Model):
     sender = models.EmailField()
-    owner = models.ForeignKey(to=User)
+    owner = models.ForeignKey(to=MailUser)
     date = models.DateTimeField()
     subject = models.TextField()
     type_choices = (

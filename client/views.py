@@ -3,11 +3,13 @@ from django.forms import fields
 from django import forms
 from django.contrib import messages, auth
 from django.http import HttpResponseRedirect, Http404
-from django.shortcuts import render_to_response
+from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
 from django.contrib.auth.models import User
 from django.db import IntegrityError
 from django.core.urlresolvers import reverse
+
+from client.models import Message, MailUser
 
 class LoginForm(forms.Form):
     username = fields.CharField(max_length=30, min_length=3)
@@ -62,7 +64,10 @@ def client(request):
     return HttpResponseRedirect(reverse('inbox'))
 
 def show_list(request, type):
-    return render_to_response(template_name='interface.html',
+    user = get_object_or_404(MailUser, user=request.user)
+    result = Message.objects.filter(owner=user, type=type).all()
+    return render_to_response(template_name='list_mail.html',
+                              dictionary={'message_list': result, type: True},
                               context_instance=RequestContext(request))
 
 def inbox(request):
@@ -78,7 +83,8 @@ def drafts(request):
     return show_list(request, 'Drafts')
 
 def edit(request, pk):
-    return Http404()
+    raise Http404()
 
 def read(request, pk):
-    return Http404()
+
+    raise Http404()

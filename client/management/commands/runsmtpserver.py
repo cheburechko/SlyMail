@@ -1,6 +1,6 @@
 from django.core.management.base import NoArgsCommand
 from SlyMail.settings import *
-from client.models import Message, MessagePart, User
+from client.models import Message, MessagePart, MailUser
 from django.core.exceptions import ObjectDoesNotExist
 from datetime import datetime
 from email.parser import Parser
@@ -26,7 +26,7 @@ class MailSMTPServer(smtpd.SMTPServer):
                 continue
 
             try:
-                user = User.objects.get(nickname=list[0])
+                user = MailUser.objects.get(user__username=list[0])
                 message = Message()
                 message.sender = mailfrom
                 message.owner = user
