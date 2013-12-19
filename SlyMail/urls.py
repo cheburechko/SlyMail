@@ -22,5 +22,6 @@ urlpatterns = patterns('',
     url(r'^client/trash$', 'client.views.trash', name='trash'),
     url(r'^client/drafts$', 'client.views.drafts', name='drafts'),
     url(r'^client/edit/(?P<pk>\d+)$', 'client.views.edit', name='edit'),
-    url(r'^client/read/(?P<pk>\d+)$', 'client.views.read', name='read')
+    url(r'^client/read/(?P<pk>\d+)$', 'client.views.read', name='read'),
+    url(r'^client/download/(?P<pk>\d+)$', 'client.views.download', name='download'),
 )

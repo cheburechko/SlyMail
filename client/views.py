@@ -2,14 +2,14 @@
 from django.forms import fields
 from django import forms
 from django.contrib import messages, auth
-from django.http import HttpResponseRedirect, Http404
+from django.http import HttpResponseRedirect, Http404, HttpResponse
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
 from django.contrib.auth.models import User
 from django.db import IntegrityError
 from django.core.urlresolvers import reverse
 
-from client.models import Message, MailUser
+from client.models import *
 
 class LoginForm(forms.Form):
     username = fields.CharField(max_length=30, min_length=3)
@@ -85,6 +85,36 @@ def drafts(request):
 def edit(request, pk):
     raise Http404()
 
-def read(request, pk):
 
-    raise Http404()
+def download(request, pk):
+    return HttpResponse()
+
+
+def read(request, pk):
+    user = get_object_or_404(MailUser, user=request.user)
+    msg = get_object_or_404(Message, owner=user, pk=pk)
+    msg_part = MessagePart.objects.filter(message=msg)
+
+    #html_msg = msg_part.filter(content_type='text/html')
+    #text_list = []
+    #if html_msg.count > 0:
+    #    text_list = html_msg.all()
+    #else:
+    text_list = msg_part.filter(content_type='text/plain').all()
+
+    output = ""
+    for text in text_list:
+        output += text.file_path.read()
+
+    attachment_parts = msg_part.exclude(content_type='text/html')\
+                               .exclude(content_type='text/plain')
+    attachments = []
+    for attachment in attachment_parts.all():
+        attachments.append({"url": reverse('download', args=[attachment.pk]),
+                            "name": attachment.file_name,
+                            "size": os.path.getsize(attachment.file_path.path)})
+
+    return render_to_response(template_name='show_msg.html',
+                              dictionary={'msg': output, 'attachments': attachments},
+                              context_instance=RequestContext(request)
+    )

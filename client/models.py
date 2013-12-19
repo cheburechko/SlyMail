@@ -37,4 +37,5 @@ class MessagePart(models.Model):
     message = models.ForeignKey(to=Message)
     content_type = models.CharField(max_length=100)
     file_path = models.FileField(upload_to=get_upload_path)
-    pass;
+    file_name = models.CharField(max_length=255)
+    file_size = models.IntegerField()

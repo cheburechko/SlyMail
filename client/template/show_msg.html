@@ -1,0 +1,12 @@
+{% extends "interface.html" %}
+
+{% block mail-content %}
+    <div class="row-fluid">
+        {{ msg }}
+    </div>
+    {% for attachment in attachments %}
+    <div class="form-row">
+        <a href="{{ attachment.url }}">{{ attachment.name }}</a> - {{ attachment.size }}
+    </div>
+    {% endfor %}
+{% endblock mail-content %}

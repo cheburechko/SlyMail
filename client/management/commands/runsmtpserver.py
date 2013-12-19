@@ -56,6 +56,8 @@ class MailSMTPServer(smtpd.SMTPServer):
                     part_name = part.get_filename(msg_part.pk.__str__())
                     msg_part.file_path.save(part_name,
                                             ContentFile(part_data))
+                    msg_part.file_name = part_name;
+                    msg_part.file_size = len(part_data)
                     msg_part.save()
 
             except ObjectDoesNotExist:

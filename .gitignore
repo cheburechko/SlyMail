@@ -1,8 +1,9 @@
 *~
-.idea*
+.idea/
 storage.db
 local.py
 *.swp
-media*
+media/
 z*
-static*
+static/
+client/migrations
