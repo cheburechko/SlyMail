@@ -11,7 +11,7 @@ urlpatterns = patterns('',
     # url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
 
     # Uncomment the next line to enable the admin:
-    url(r'^', 'client.views.client', name='client'),
+    url(r'^$', 'client.views.client', name='client'),
     url(r'^inbox$', 'client.views.inbox', name='inbox'),
     url(r'^sent$', 'client.views.sent', name='sent'),
     url(r'^trash$', 'client.views.trash', name='trash'),
@@ -20,5 +20,5 @@ urlpatterns = patterns('',
     url(r'^read/(?P<pk>\d+)$', 'client.views.read', name='read'),
     url(r'^read/(?P<pk>\d+)/fetch$', 'client.views.fetchMail', name='fetchMail'),
     url(r'^download/(?P<pk>\d+)$', 'client.views.download', name='download'),
-    url(r'^delete$', 'client.views.delete', name="delete")
+    url(r'^process$', 'client.views.process', name="process")
 )

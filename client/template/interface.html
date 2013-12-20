@@ -12,19 +12,19 @@
                 <li {% if Drafts %}class="active"{% endif %}><a href="{% url drafts %}">Drafts</a></li>
           </ul>
       </div>
-      <div class="col-sm-10">
+      <form action="{% url process %}" class="col-sm-10" method="POST">{% csrf_token %}
         <div class="row">
           <div class="btn-group">
-            <a href="{% url client %}" class="btn btn-default">New</a>
-            <a href="{% url client %}" class="btn btn-default">Resend</a>
-            <a href="{% url client %}" class="btn btn-default">Delete</a>
+            <input name="new" class="btn btn-default" value="New" type="submit"/>
+            <input name="resend" class="btn btn-default" value="Resend" type="submit"/>
+            <input name="delete" class="btn btn-default" value="Delete" type="submit"/>
           </div>
         </div>
         <div class="row">
             {% block mail-content %}
             {% endblock mail-content %}
         </div>
-      </div>
+      </form>
     </div>
 
 {% endblock content %}

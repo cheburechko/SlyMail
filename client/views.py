@@ -135,9 +135,8 @@ def renderSize(size):
 
 
 def read(request, pk):
-    user = get_object_or_404(MailUser, user=request.user)
-    msg = get_object_or_404(Message, owner=user, pk=pk)
-    msg_part = MessagePart.objects.filter(message=msg)
+    msg = get_object_or_404(Message, owner__user=request.user, pk=pk)
+    msg_part = msg.messagepart_set
 
     attachment_parts = msg_part.exclude(content_type='text/html')\
                                .exclude(content_type='text/plain')
@@ -155,3 +154,25 @@ def read(request, pk):
                                           'attachments': attachments},
                               context_instance=RequestContext(request)
     )
+
+# Busy box for all buttons.
+def process(request):
+    if 'delete' in request.POST:
+        for key in request.POST.keys():
+            if key.startswith('check'):
+                pk = int(key[5:])
+                msg = get_object_or_404(Message, pk=pk, owner__user=request.user)
+                if msg.type != 'Trash':
+                    msg.type = 'Trash'
+                    msg.save()
+                else:
+                    for part in msg.messagepart_set.all():
+                        part.file_path.delete()
+                    msg.raw_message.delete()
+                    msg.delete()
+    elif 'new' in request.POST:
+        pass
+    elif 'resend':
+        pass
+
+    return HttpResponseRedirect(reverse('client'))

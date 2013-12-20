@@ -2,11 +2,11 @@
 <html>
     <head>
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <style>
+        {% comment %}<style>
           body {
             padding-top: 60px; /* 60px to make the container go all the way to the bottom of the topbar */
           }
-        </style>
+        </style>{% endcomment %}
         <link href="../assets/css/bootstrap-responsive.css" rel="stylesheet">
         <!-- Bootstrap -->
         <link href="{{ STATIC_URL }}bootstrap/css/bootstrap.min.css" rel="stylesheet" media="screen">
@@ -22,10 +22,11 @@
 		{% endfor %}
 	{% endif %}
 
+    {% comment %}
     <div class="navbar navbar-inverse navbar-fixed-top">
       <div class="navbar-inner">
         <div class="container">
-          {% comment %}
+
           <button type="button" class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
@@ -47,11 +48,11 @@
               </li>
               {% endblock %}
             </ul>
-          </div><!--/.nav-collapse -->{% endcomment %}
+          </div><!--/.nav-collapse -->
         </div>
       </div>
     </div>
-
+    {% endcomment %}
     <div class="container">
     <h1>{% block head %}Title{% endblock %}</h1>
 	{% block content %}
