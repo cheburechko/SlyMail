@@ -8,8 +8,9 @@ from email.header import decode_header
 from django.core.files.base import ContentFile
 import traceback
 
-import smtpd
+import smtpd, smtplib
 import asyncore
+
 
 class MailSMTPServer(smtpd.SMTPServer):
 
@@ -23,6 +24,18 @@ class MailSMTPServer(smtpd.SMTPServer):
         for recipient in rcpttos:
             list = recipient.split('@')
             if list[1] != SERVER_DOMAIN:
+                # Forward outgoing messages.
+                if peer[0] == SMTP_LOCAL_ADDR[0]:
+                    try:
+                        server = smtplib.SMTP(SMTP_LOCAL_ADDR[0], SMTP_LOCAL_ADDR[1])
+                        if EMAIL_USE_TLS:
+                            server.starttls()
+                            server.ehlo()
+
+                        server.login(EMAIL_HOST_USER, EMAIL_HOST_PASSWORD)
+                        server.sendmail(mailfrom, rcpttos, data)
+                    finally:
+                        server.quit()
                 continue
 
             try:

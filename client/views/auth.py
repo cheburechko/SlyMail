@@ -10,6 +10,8 @@ from django import forms
 from django.http import HttpResponseRedirect
 from django.core.urlresolvers import reverse
 
+from client.models import MailUser
+
 class LoginForm(forms.Form):
     username = fields.CharField(max_length=30, min_length=3)
     password = fields.CharField(max_length=30, widget=forms.PasswordInput)
@@ -37,6 +39,13 @@ def login(request):
     )
 
 
+def logout(request):
+    redirect_to = reverse('login')
+    auth.logout(request)
+    messages.add_message(request, messages.SUCCESS, "Logged out successfully")
+    return HttpResponseRedirect(redirect_to)
+
+
 def register(request):
     redirect_to = request.REQUEST.get('next', '')
     if request.method == 'POST':
@@ -45,14 +54,15 @@ def register(request):
             username = form.cleaned_data['username'].lower()
             password = form.cleaned_data['password']
             try:
-                User.objects.create_user(username=username, password=password)
+                user = User.objects.create_user(username=username, password=password)
+                MailUser.objects.create(user=user)
             except IntegrityError:
                 messages.add_message(request, messages.ERROR, "A user with such name already exists")
             else:
                 messages.add_message(request, messages.SUCCESS, "Registration completed successfully")
                 user = auth.authenticate(username=username, password=password)
                 auth.login(request, user)
-                return HttpResponseRedirect(reverse('client'))
+                return HttpResponseRedirect(reverse('login'))
     else:
         form = LoginForm()
     return render_to_response(template_name='register.html',
