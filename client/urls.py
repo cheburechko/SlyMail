@@ -11,14 +11,14 @@ urlpatterns = patterns('',
     # url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
 
     # Uncomment the next line to enable the admin:
-    url(r'^$', 'client.views.client', name='client'),
-    url(r'^inbox$', 'client.views.inbox', name='inbox'),
-    url(r'^sent$', 'client.views.sent', name='sent'),
-    url(r'^trash$', 'client.views.trash', name='trash'),
-    url(r'^drafts$', 'client.views.drafts', name='drafts'),
-    url(r'^edit/(?P<pk>\d+)$', 'client.views.edit', name='edit'),
-    url(r'^read/(?P<pk>\d+)$', 'client.views.read', name='read'),
-    url(r'^read/(?P<pk>\d+)/fetch$', 'client.views.fetchMail', name='fetchMail'),
-    url(r'^download/(?P<pk>\d+)$', 'client.views.download', name='download'),
-    url(r'^process$', 'client.views.process', name="process")
+    url(r'^$', 'client.views.list.client', name='client'),
+    url(r'^inbox$', 'client.views.list.inbox', name='inbox'),
+    url(r'^sent$', 'client.views.list.sent', name='sent'),
+    url(r'^trash$', 'client.views.list.trash', name='trash'),
+    url(r'^drafts$', 'client.views.list.drafts', name='drafts'),
+    url(r'^edit/(?P<pk>\d+)$', 'client.views.process.edit', name='edit'),
+    url(r'^read/(?P<pk>\d+)$', 'client.views.fetch.read', name='read'),
+    url(r'^read/(?P<pk>\d+)/fetch$', 'client.views.fetch.fetchMail', name='fetchMail'),
+    url(r'^download/(?P<pk>\d+)$', 'client.views.fetch.download', name='download'),
+    url(r'^process$', 'client.views.process.process', name="process")
 )
