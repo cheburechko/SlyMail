@@ -25,17 +25,17 @@ class MailSMTPServer(smtpd.SMTPServer):
             list = recipient.split('@')
             if list[1] != SERVER_DOMAIN:
                 # Forward outgoing messages.
-                if peer[0] == SMTP_LOCAL_ADDR[0]:
-                    try:
-                        server = smtplib.SMTP(SMTP_LOCAL_ADDR[0], SMTP_LOCAL_ADDR[1])
-                        if EMAIL_USE_TLS:
-                            server.starttls()
-                            server.ehlo()
-
-                        server.login(EMAIL_HOST_USER, EMAIL_HOST_PASSWORD)
-                        server.sendmail(mailfrom, rcpttos, data)
-                    finally:
-                        server.quit()
+                # if peer[0] == SMTP_LOCAL_ADDR[0]:
+                #     try:
+                #         server = smtplib.SMTP(SMTP_LOCAL_ADDR[0], SMTP_LOCAL_ADDR[1])
+                #         if EMAIL_USE_TLS:
+                #             server.starttls()
+                #             server.ehlo()
+                #
+                #         server.login(EMAIL_HOST_USER, EMAIL_HOST_PASSWORD)
+                #         server.sendmail(mailfrom, rcpttos, data)
+                #     finally:
+                #         server.quit()
                 continue
 
             try:
@@ -59,6 +59,7 @@ class MailSMTPServer(smtpd.SMTPServer):
                 message.save()
                 message.raw_message.save(message.pk.__str__(), ContentFile(data))
                 message.save()
+                print 'Saved raw message:', message.pk
 
                 # Decode attachments and text message.
                 for part in mail.walk():
@@ -77,7 +78,8 @@ class MailSMTPServer(smtpd.SMTPServer):
                                             ContentFile(part_data))
                     msg_part.file_name = part_name;
                     msg_part.save()
-
+                    print 'Saved part ', part_name
+                print 'Successfully received'
             except ObjectDoesNotExist:
                 print list[0], ' not in db'
             except:

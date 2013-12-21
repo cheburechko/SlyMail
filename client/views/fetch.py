@@ -23,10 +23,12 @@ def fetchMail(request, pk):
 
     html_msg = msg_part.filter(content_type='text/html')
     text_list = []
-    if html_msg.count > 0:
+
+    if html_msg.count() > 0:
         text_list = html_msg.all()
     else:
         text_list = msg_part.filter(content_type='text/plain').all()
+    
 
     output = ""
     for text in text_list:

@@ -128,9 +128,9 @@ def convert_msg_part(msg_part):
     else:
         msg = MIMEBase(maintype, subtype)
         msg.set_payload(data)
+        encode_base64(msg)
 
     msg.add_header('Content-Disposition', 'attachment', filename=msg_part.file_name)
-    encode_base64(msg)
     return msg
 
 EMAIL_REGEX = re.compile(r'^[a-zA-z0-9._\-+%]+@[a-zA-z0-9\-.]+.[a-z]+')
