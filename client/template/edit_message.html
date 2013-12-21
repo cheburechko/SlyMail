@@ -1,0 +1,16 @@
+{% extends "interface.html" %}
+
+{% block mail-content %}
+    <form class="row" method="POST" action={% url process %}>
+        {% csrf_token %}
+        <div class="form-row">
+        {{ form.as_p }}
+        </div>
+        <div class="btn-group form-row">
+        <input type="hidden" name="msg_pk" value="{{ msg_pk }}"/>
+        <input type="hidden" name="msg_part_pk" value="{{ msg_part_pk }}"/>
+        <input type="submit" value="Save" name="save" class="btn btn-default"/>
+        <input type="submit" value="Send" name="send" class="btn btn-default"/>
+        </div>
+    </form>
+{% endblock %}

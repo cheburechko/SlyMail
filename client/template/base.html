@@ -17,7 +17,7 @@
 	{% if messages %}
 		{% for message in messages %}
         <div class="alert alert-{% if message.tags %}{{ message.tags }}{% endif %}">
-			<p>{{ message }}</p>
+			{% autoescape off %}{{ message }}{% endautoescape %}
         </div>
 		{% endfor %}
 	{% endif %}
