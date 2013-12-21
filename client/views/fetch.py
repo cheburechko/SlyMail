@@ -28,7 +28,6 @@ def fetchMail(request, pk):
         text_list = html_msg.all()
     else:
         text_list = msg_part.filter(content_type='text/plain').all()
-    
 
     output = ""
     for text in text_list:
