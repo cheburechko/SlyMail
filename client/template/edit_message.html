@@ -13,4 +13,68 @@
         <input type="submit" value="Send" name="send" class="btn btn-default"/>
         </div>
     </form>
+
+    {%  for attachment in attachments  %}
+        <div class="form-row">
+        <a href="{{ attachment.url }}">{{ attachment.name }}</a> - {{ attachment.size }}
+        </div>
+    {% endfor %}
+
+    <form id="fileForm" action="{% url process %}" method="POST">
+        {% csrf_token %}
+    	<input type="file" name="file"/>
+    	<input type="hidden" name="msg_pk" value="{{ msg_pk }}"/>
+    	<input id="form_submit_button" class="tp-button" type="submit" value="Submit" name="upload"/>
+	</form>
+    <div id='result'></div>
+{% endblock %}
+
+{% block scripts %}
+    <script src="{{ STATIC_URL }}jquery.form.min.js"></script>
+    <script>
+        /**
+         * setup JQuery's AJAX methods to setup CSRF token in the request before sending it off.
+         * http://stackoverflow.com/questions/5100539/django-csrf-check-failing-with-an-ajax-post-request
+         */
+
+        function getCookie(name) {
+            var cookieValue = null;
+            if (document.cookie && document.cookie != '') {
+                var cookies = document.cookie.split(';');
+                for (var i = 0; i < cookies.length; i++) {
+                    var cookie = jQuery.trim(cookies[i]);
+// Does this cookie string begin with the name we want?
+
+                    if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        $.ajaxSetup({
+            beforeSend: function (xhr, settings) {
+                if (!(/^http:.*/.test(settings.url) || /^https:.*/.test(settings.url))) {
+// Only send the token to relative URLs i.e. locally.
+                    xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
+                }
+            }
+        });
+
+        // wait for the DOM to be loaded
+        $(document).ready(function() {
+             var options = {
+                success:       showResponse
+             }
+            $('#fileForm').ajaxForm(options);
+        });
+
+        function showResponse(responseText, statusText, xhr, $form)  {
+            $('#result').html(responseText);
+            alert('status: ' + statusText + '\n\nresponseText: \n' + responseText +
+                  '\n\nThe output div should have already been updated with the responseText.');
+}
+    </script>
 {% endblock %}

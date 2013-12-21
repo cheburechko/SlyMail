@@ -10,7 +10,7 @@ from django.template import RequestContext
 from django.shortcuts import render_to_response, get_object_or_404
 from django.core.urlresolvers import reverse
 
-import datetime, re, smtplib
+import datetime, re, smtplib, mimetypes
 from email.utils import getaddresses
 from email.mime.multipart import MIMEMultipart
 from email.mime.audio import MIMEAudio
@@ -20,7 +20,7 @@ from email.mime.text import MIMEText
 from email.encoders import encode_base64
 
 from client.models import *
-
+from client.views.helpers import collect_attachements, renderSize
 
 class EditMailForm(forms.Form):
     to = fields.CharField(required=False)
@@ -42,10 +42,10 @@ def edit(request, pk):
     return render_to_response(template_name='edit_message.html',
                               dictionary={'form': form,
                                           'msg_pk': msg.pk,
-                                          'msg_part_pk': msg_part.pk},
+                                          'msg_part_pk': msg_part.pk,
+                                          'attachments': collect_attachements(msg)},
                               context_instance=RequestContext(request)
     )
-
 
 
 def delete(request):
@@ -173,7 +173,28 @@ def send_mail(request):
     return HttpResponseRedirect(reverse('inbox'))
 
 
+def upload(request):
+    msg = get_object_or_404(Message,
+                            owner__user=request.user,
+                            pk=request.POST['msg_pk'])
 
+    try:
+        msg_part = MessagePart()
+        uploaded_file = request.FILES['file']
+
+        msg_part.file_name = uploaded_file.name
+        msg_part.message = msg
+        msg_part.file_size = uploaded_file.size
+        msg_part.file_path.save(msg_part.file_name, uploaded_file)
+        msg_part.save()
+
+        return HttpResponse('<div class="form-row">\
+        <a href="{:s}">{:s}</a> - {:s}\
+        </div>'.format(reverse('download', args=[msg_part.pk]),
+                       msg_part.file_name,
+                       renderSize(msg_part.file_size)))
+    except:
+        return HttpResponse('<p class="alert alert-danger">Failed to upload file.</p>')
 
 
 # Busy box for all buttons.
@@ -188,5 +209,7 @@ def process(request):
         return save_mail(request)
     elif 'send' in request.POST:
         return send_mail(request)
+    elif 'upload' in request.POST:
+        return upload(request)
     else:
         raise Http404
