@@ -2,16 +2,16 @@
 
 {% block mail-content %}
     <div class="row">
-        <div class="btn-group">
-            <form action="{% url process %}" method="POST">
+
+        <form action="{% url processSingle msg_pk %}" method="POST">
+            <div class="btn-group">
                 {% csrf_token %}
                 <input name="new" class="btn btn-default" value="New" type="submit"/>
-            </form>
-            <form action="{% url processSingle msg_pk %}" method="POST">
-                {% csrf_token %}
+                {% if can_resend %}<input name="resend" class="btn btn-default" value="Resend" type="submit"/>{% endif %}
                 <input name="delete" class="btn btn-default" value="Delete" type="submit"/>
-            </form>
-        </div>
+            </div>
+        </form>
+
     </div>
     <div class="row">
       <h3>{{ subject }}</h3>

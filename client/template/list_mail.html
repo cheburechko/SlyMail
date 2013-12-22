@@ -9,28 +9,45 @@
                 <input name="delete" class="btn btn-default" value="Delete" type="submit"/>
             </div>
         </div>
-        <div class="list-group">
+        <ul class="list-group">
             {% for msg in message_list %}
-                    <a href="{% if Drafts %}
-                        {% url edit msg.pk %}
-                        {% else %}
-                        {% url read msg.pk %}
-                        {% endif %}"
-                       class="list-group-item row">
+                    <li class="list-group-item row">
                         <span class="col-sm-1">
                             <input type='checkbox' name='check{{ msg.pk }}'/>
                         </span>
-                        <span class="col-sm-2">
+                        <a href="{% if Drafts %}
+                            {% url edit msg.pk %}
+                            {% else %}
+                            {% url read msg.pk %}
+                            {% endif %}"
+                            class="col-sm-3">
+                            {% if Drafts or Sent %}
+                                {% if msg.recipients %}
+                                    {{ msg.recipients }}
+                                {% else %}
+                                    &ltno address&gt
+                                {% endif %}
+                            {% else %}
                             {{ msg.sender }}
-                        </span>
-                        <span class="col-sm-6">
-                            {{ msg.subject }}
-                        </span>
+                            {% endif %}
+                        </a>
+                        <a href="{% if Drafts %}
+                            {% url edit msg.pk %}
+                            {% else %}
+                            {% url read msg.pk %}
+                            {% endif %}"
+                            class="col-sm-5">
+                                {% if msg.subject %}
+                                    {{ msg.subject }}
+                                {% else %}
+                                    &ltno subject&gt
+                                {% endif %}
+                        </a>
                         <span class="col-sm-3">
                             {{ msg.date }}
                         </span>
-                    </a>
+                    </li>
             {% endfor %}
-        </div>
+        </ul>
     </form>
 {% endblock mail-content %}

@@ -82,9 +82,12 @@ def save_msg(request, pk):
     if form.is_valid():
         msg.subject = form.cleaned_data['subject']
         msg.recipients = form.cleaned_data['to']
+        msg.date = datetime.datetime.now()
+
         msg_part.file_path.delete()
         msg_part.file_path.save(msg_part.file_name,
                                 ContentFile(form.cleaned_data['body']))
+
         msg.save()
         msg_part.save()
         return None
@@ -133,8 +136,8 @@ def delete_msg(request, pk):
 def new_msg(request):
     msg = Message()
     msg.type = 'Drafts'
-    msg.sender = request.user.username + '@' + SERVER_DOMAIN
     msg.owner = MailUser.objects.get(user=request.user)
+    msg.sender = msg.owner.address
     msg.date = datetime.datetime.now()
     msg.save()
 

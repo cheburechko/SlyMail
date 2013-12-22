@@ -11,10 +11,15 @@ from django.http import HttpResponseRedirect
 from django.core.urlresolvers import reverse
 
 from client.models import MailUser
+from SlyMail.settings import SERVER_DOMAIN
 
 class LoginForm(forms.Form):
     username = fields.CharField(max_length=30, min_length=3)
     password = fields.CharField(max_length=30, widget=forms.PasswordInput)
+
+
+class RegistrationForm(LoginForm):
+    real_name = fields.CharField(max_length=80, required=False, initial='Anonymous')
 
 
 def login(request):
@@ -49,13 +54,15 @@ def logout(request):
 def register(request):
     redirect_to = request.REQUEST.get('next', '')
     if request.method == 'POST':
-        form = LoginForm(request.POST)
+        form = RegistrationForm(request.POST)
         if form.is_valid():
             username = form.cleaned_data['username'].lower()
             password = form.cleaned_data['password']
             try:
                 user = User.objects.create_user(username=username, password=password)
-                MailUser.objects.create(user=user)
+                MailUser.objects.create(user=user,
+                                        name=form.cleaned_data['real_name'],
+                                        address=username+'@'+SERVER_DOMAIN)
             except IntegrityError:
                 messages.add_message(request, messages.ERROR, "A user with such name already exists")
             else:
@@ -64,7 +71,7 @@ def register(request):
                 auth.login(request, user)
                 return HttpResponseRedirect(reverse('login'))
     else:
-        form = LoginForm()
+        form = RegistrationForm()
     return render_to_response(template_name='register.html',
                               dictionary={'form': form, 'next': redirect_to},
                               context_instance=RequestContext(request)

@@ -26,6 +26,7 @@ def edit(request, pk):
     form = EditMailForm({'to': msg.recipients,
                          'subject': msg.subject,
                          'body': msg_part.file_path.read()})
+    msg_part.file_path.close()
     return render_to_response(template_name='edit_message.html',
                               dictionary={'form': form,
                                           'msg_pk': msg.pk,
@@ -119,10 +120,40 @@ def delete_mail(request, pk):
     return HttpResponseRedirect(reverse('client'))
 
 
+def resend_mail(request, pk):
+    msg = get_object_or_404(Message, owner__user=request.user, pk=pk)
+
+    copy = Message()
+    copy.owner = msg.owner
+    copy.sender = msg.sender
+    copy.date = datetime.datetime.now()
+    copy.recipients = msg.recipients
+    copy.subject = msg.subject
+    copy.type = 'Drafts'
+    copy.raw_message.save(msg.raw_message.name,
+                          ContentFile(msg.raw_message.read()))
+    msg.raw_message.close()
+    copy.save()
+
+    for part in msg.messagepart_set.all():
+        copy_part = MessagePart()
+        copy_part.content_type = part.content_type
+        copy_part.file_name = part.file_name
+        copy_part.file_size = part.file_size
+        copy_part.message = copy
+        copy_part.save()
+
+        copy_part.file_path.save(part.file_name,
+                                 ContentFile(part.file_path.read()))
+        part.file_path.close()
+        copy_part.save()
+
+    return edit(request, copy.pk)
+
 # Busy box for all buttons.
 def processSingle(request, pk):
     if 'resend' in request.POST:
-        return send_mail(request, pk)
+        return resend_mail(request, pk)
     elif 'save' in request.POST:
         return save_mail(request, pk)
     elif 'send' in request.POST:
