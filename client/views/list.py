@@ -18,6 +18,7 @@ def show_list(request, type):
                               dictionary={'message_list': result, type: True},
                               context_instance=RequestContext(request))
 
+
 def inbox(request):
     return show_list(request, 'Inbox')
 

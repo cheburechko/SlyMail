@@ -7,7 +7,7 @@ from django.contrib import messages
 from django.shortcuts import get_object_or_404
 from django.core.files.base import ContentFile
 
-import os, datetime
+import os, datetime, traceback
 from email.mime.audio import MIMEAudio
 from email.mime.image import MIMEImage
 from email.mime.base import MIMEBase
@@ -16,12 +16,27 @@ from email.encoders import encode_base64
 
 from client.models import *
 from SlyMail.settings import SERVER_DOMAIN
+from client.widget import BootstrapTextWidget
 
 
 class EditMailForm(forms.Form):
-    to = fields.CharField(required=False)
-    subject = fields.CharField(required=False)
-    body = fields.CharField(widget=forms.Textarea, required=False)
+    to = fields.CharField(required=False,
+                          widget=forms.TextInput(attrs={'class': 'form-control'}))
+    subject = fields.CharField(required=False,
+                               widget=forms.TextInput(attrs={'class': 'form-control'}))
+    body = fields.CharField(widget=forms.Textarea(attrs={'class': 'form-control', 'rows':15}),
+                            required=False, label='')
+
+    def render(self):
+        return self._html_output(
+            normal_row = u'<div class="input-group">' \
+                         u'<span class="input-group-addon">%(label)s</span>' \
+                         u'%(field)s%(help_text)s %(errors)s</div>',
+            error_row = u'<div class="error">%s</div>',
+            row_ender = u'</div>',
+            help_text_html = u'<div class="help-text">%s</div>',
+            errors_on_separate_row = False
+        )
 
 
 def renderSize(size):

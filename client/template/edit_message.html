@@ -13,7 +13,7 @@
     <form class="row" method="POST" action="{% url processSingle msg_pk %}">
         {% csrf_token %}
         <div class="form-row">
-        {{ form.as_p }}
+            {{ form.render }}
         </div>
         <div class="btn-group form-row">
         <input type="hidden" name="msg_part_pk" value="{{ msg_part_pk }}"/>
@@ -32,8 +32,8 @@
 
     <form id="fileForm" action="{% url processSingle msg_pk %}" method="POST">
         {% csrf_token %}
-    	<input type="file" name="file" class="btn btn-default"/>
-    	<input id="form_submit_button" class="tp-button" type="submit" value="Submit" name="upload" class="btn btn-default" />
+    	<input type="file" name="file" class="btn btn-default" id="file_choice"/>
+        <input type="hidden" name="upload"/>
 	</form>
 
 {% endblock %}
@@ -82,6 +82,9 @@
                 error:         showError
              }
             $('#fileForm').ajaxForm(options);
+            $('#file_choice').change(function() {
+                $('#fileForm').submit();
+            });
         });
 
         var uploadReady = true;
@@ -92,7 +95,8 @@
             {
                 $('#result').append(
                     '<div class="row" id="pending">\
-                        <div class="progress col-sm-4 progress-striped active">\
+                        <div class="form-row"  id="pending-text"></div>\
+                        <div class="progress col-sm-4 progress-striped active form-row">\
                             <div class="progress-bar" role="progressbar" style="width: 0%;"\
                                  id="pending-bar">\
                                 <span class="sr-only" id="pending-span">0% Complete</span>\
@@ -100,6 +104,7 @@
                         </div>\
                     </div>'
                 )
+                $('#pending-text').text($('#file_choice').val())
                 uploadReady = false;
                 return true;
             }
