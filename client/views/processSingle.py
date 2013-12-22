@@ -13,8 +13,7 @@ from email.utils import getaddresses
 from email.mime.multipart import MIMEMultipart
 
 from client.models import *
-from client.views.helpers import collect_attachments, \
-    renderSize, save_msg, convert_msg_part, EditMailForm
+from client.views.helpers import *
 
 
 def edit(request, pk):
@@ -115,15 +114,24 @@ def upload(request, pk):
         return HttpResponse('<p class="alert alert-danger">Failed to upload file.</p>')
 
 
+def delete_mail(request, pk):
+    delete_msg(request, pk)
+    return HttpResponseRedirect(reverse('client'))
+
+
 # Busy box for all buttons.
 def processSingle(request, pk):
     if 'resend' in request.POST:
-        return HttpResponseRedirect(reverse('client'))
+        return send_mail(request, pk)
     elif 'save' in request.POST:
         return save_mail(request, pk)
     elif 'send' in request.POST:
         return send_mail(request, pk)
     elif 'upload' in request.POST:
         return upload(request, pk)
+    elif 'delete' in request.POST:
+        return delete_mail(request, pk)
+    elif 'new' in request.POST:
+        return edit(request, new_msg(request))
     else:
         raise Http404

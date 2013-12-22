@@ -1,6 +1,15 @@
 {% extends "interface.html" %}
 
 {% block mail-content %}
+    <div class="row">
+        <form action="{% url processSingle msg_pk %}" method="POST">
+            {% csrf_token %}
+            <div class="btn-group">
+                <input name="new" class="btn btn-default" value="New" type="submit"/>
+                <input name="delete" class="btn btn-default" value="Delete" type="submit"/>
+            </div>
+        </form>
+    </div>
     <form class="row" method="POST" action="{% url processSingle msg_pk %}">
         {% csrf_token %}
         <div class="form-row">
@@ -15,7 +24,7 @@
 
     <div id='result'>
     {%  for attachment in attachments  %}
-        <div class="form-row">
+        <div class="row">
         <a href="{{ attachment.url }}">{{ attachment.name }}</a> - {{ attachment.size }}
         </div>
     {% endfor %}
@@ -23,9 +32,10 @@
 
     <form id="fileForm" action="{% url processSingle msg_pk %}" method="POST">
         {% csrf_token %}
-    	<input type="file" name="file"/>
-    	<input id="form_submit_button" class="tp-button" type="submit" value="Submit" name="upload"/>
+    	<input type="file" name="file" class="btn btn-default"/>
+    	<input id="form_submit_button" class="tp-button" type="submit" value="Submit" name="upload" class="btn btn-default" />
 	</form>
+
 {% endblock %}
 
 {% block scripts %}
@@ -80,7 +90,16 @@
         {
             if (uploadReady)
             {
-                $('#result').append('<div id="pending" class="form-row">Loading...</div>')
+                $('#result').append(
+                    '<div class="row" id="pending">\
+                        <div class="progress col-sm-4 progress-striped active">\
+                            <div class="progress-bar" role="progressbar" style="width: 0%;"\
+                                 id="pending-bar">\
+                                <span class="sr-only" id="pending-span">0% Complete</span>\
+                            </div>\
+                        </div>\
+                    </div>'
+                )
                 uploadReady = false;
                 return true;
             }
@@ -90,7 +109,8 @@
 
         function showProgress(event, position, total, percent)
         {
-            $('#pending').text('Loading: ' + String(percent) + '%');
+            $('#pending-bar').attr('style', 'width: ' + String(percent) + '%;')
+            $('#pending-span').text(String(percent) + '% Complete');
         }
 
         function showError()

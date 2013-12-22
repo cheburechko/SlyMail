@@ -1,41 +1,40 @@
 {% extends "interface.html" %}
 
 {% block mail-content %}
-    <div class="row">
-        <form action="{% url process %}" method="POST">
+    <form action="{% url process %}" method="POST">
+        <div class="row">
             {% csrf_token %}
             <div class="btn-group">
                 <input name="new" class="btn btn-default" value="New" type="submit"/>
                 <input name="delete" class="btn btn-default" value="Delete" type="submit"/>
             </div>
-
-        </form>
-    </div>
-    <div class="row">
-        {% for msg in message_list %}
-            <div class="row">
-                <div class="col-sm-1">
-                    <input type='checkbox' name='check{{ msg.pk }}'/>
-                </div>
-                <div class="col-sm-2">
-                    <a href="{% if Drafts %}
+        </div>
+        <div class="row">
+            {% for msg in message_list %}
+                <div class="row">
+                    <div class="col-sm-1">
+                        <input type='checkbox' name='check{{ msg.pk }}'/>
+                    </div>
+                    <div class="col-sm-2">
+                        <a href="{% if Drafts %}
                         {% url edit msg.pk %}
                         {% else %}
                         {% url read msg.pk %}
                         {% endif %}">{{ msg.sender }}</a>
-                </div>
-                <div class="col-sm-6">
-                    <a href="{% if Drafts %}
+                    </div>
+                    <div class="col-sm-6">
+                        <a href="{% if Drafts %}
                         {% url edit msg.pk %}
                         {% else %}
                         {% url read msg.pk %}
                         {% endif %}">{{ msg.subject }}</a>
+                    </div>
+                    <div class="col-sm-3">
+                        {{ msg.date }}
+                    </div>
                 </div>
-                <div class="col-sm-3">
-                    {{ msg.date }}
-                </div>
-            </div>
 
-        {% endfor %}
-    </div>
+            {% endfor %}
+        </div>
+    </form>
 {% endblock mail-content %}

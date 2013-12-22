@@ -44,6 +44,7 @@ def read(request, pk):
                                           'subject': msg.subject,
                                           'recipients': msg.recipients,
                                           'sender': msg.sender,
+                                          'msg_pk': pk,
                                           'attachments': collect_attachments(msg)},
                               context_instance=RequestContext(request)
     )
