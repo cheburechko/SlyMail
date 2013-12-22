@@ -58,5 +58,10 @@ USE_L10N = True
 # If you set this to False, Django will not use timezone-aware datetimes.
 USE_TZ = True
 
+
+# Some commons stuff.
 from django.contrib.messages import constants as messages
+import re
+
 MESSAGE_TAGS = {messages.ERROR: 'danger'}
+EMAIL_REGEX = re.compile(r'^[a-zA-z0-9._\-+%]+@[a-zA-z0-9\-.]+.[a-z]+')

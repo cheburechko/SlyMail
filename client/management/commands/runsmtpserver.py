@@ -25,18 +25,18 @@ class MailSMTPServer(smtpd.SMTPServer):
             list = recipient.split('@')
             if list[1] != SERVER_DOMAIN:
                 # Forward outgoing messages.
-                # if peer[0] == SMTP_LOCAL_ADDR[0]:
-                #     try:
+                #  if peer[0] == SMTP_LOCAL_ADDR[0]:
+                #      try:
                 #         server = smtplib.SMTP(SMTP_LOCAL_ADDR[0], SMTP_LOCAL_ADDR[1])
                 #         if EMAIL_USE_TLS:
-                #             server.starttls()
-                #             server.ehlo()
+                #              server.starttls()
+                #              server.ehlo()
                 #
                 #         server.login(EMAIL_HOST_USER, EMAIL_HOST_PASSWORD)
                 #         server.sendmail(mailfrom, rcpttos, data)
-                #     finally:
+                #      finally:
                 #         server.quit()
-                continue
+                 continue
 
             try:
                 user = MailUser.objects.get(user__username=list[0])

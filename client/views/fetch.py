@@ -5,7 +5,7 @@ from django.template import RequestContext
 from django.core.urlresolvers import reverse
 
 from client.models import *
-from client.views.helpers import renderSize, collect_attachements
+from client.views.helpers import renderSize, collect_attachments
 
 def download(request, pk):
     user = get_object_or_404(MailUser, user=request.user)
@@ -44,7 +44,7 @@ def read(request, pk):
                                           'subject': msg.subject,
                                           'recipients': msg.recipients,
                                           'sender': msg.sender,
-                                          'attachments': collect_attachements(msg)},
+                                          'attachments': collect_attachments(msg)},
                               context_instance=RequestContext(request)
     )
 

@@ -1,32 +1,31 @@
 {% extends "interface.html" %}
 
 {% block mail-content %}
-    <form class="row" method="POST" action={% url process %}>
+    <form class="row" method="POST" action="{% url processSingle msg_pk %}">
         {% csrf_token %}
         <div class="form-row">
         {{ form.as_p }}
         </div>
         <div class="btn-group form-row">
-        <input type="hidden" name="msg_pk" value="{{ msg_pk }}"/>
         <input type="hidden" name="msg_part_pk" value="{{ msg_part_pk }}"/>
         <input type="submit" value="Save" name="save" class="btn btn-default"/>
         <input type="submit" value="Send" name="send" class="btn btn-default"/>
         </div>
     </form>
 
+    <div id='result'>
     {%  for attachment in attachments  %}
         <div class="form-row">
         <a href="{{ attachment.url }}">{{ attachment.name }}</a> - {{ attachment.size }}
         </div>
     {% endfor %}
+    </div>
 
-    <form id="fileForm" action="{% url process %}" method="POST">
+    <form id="fileForm" action="{% url processSingle msg_pk %}" method="POST">
         {% csrf_token %}
     	<input type="file" name="file"/>
-    	<input type="hidden" name="msg_pk" value="{{ msg_pk }}"/>
     	<input id="form_submit_button" class="tp-button" type="submit" value="Submit" name="upload"/>
 	</form>
-    <div id='result'></div>
 {% endblock %}
 
 {% block scripts %}
@@ -66,15 +65,43 @@
         // wait for the DOM to be loaded
         $(document).ready(function() {
              var options = {
-                success:       showResponse
+                beforeSubmit:  showRequest,
+                uploadProgress:showProgress,
+                clearForm:     true,
+                success:       showResponse,
+                error:         showError
              }
             $('#fileForm').ajaxForm(options);
         });
 
+        var uploadReady = true;
+
+        function showRequest(arr, $form, options)
+        {
+            if (uploadReady)
+            {
+                $('#result').append('<div id="pending" class="form-row">Loading...</div>')
+                uploadReady = false;
+                return true;
+            }
+            else
+                return false;
+        }
+
+        function showProgress(event, position, total, percent)
+        {
+            $('#pending').text('Loading: ' + String(percent) + '%');
+        }
+
+        function showError()
+        {
+            uploadReady = true;
+            $('#pending').html("Failed.").removeAttr('id');
+        }
+
         function showResponse(responseText, statusText, xhr, $form)  {
-            $('#result').html(responseText);
-            alert('status: ' + statusText + '\n\nresponseText: \n' + responseText +
-                  '\n\nThe output div should have already been updated with the responseText.');
-}
+            $('#pending').html(responseText).removeAttr('id');
+            uploadReady = true;
+        }
     </script>
 {% endblock %}
