@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+
+{% block head %}Address book{% endblock %}
+
+{% block content %}
+    <form action="{% url address_book %}" method="POST">{% csrf_token %}
+    <table class="table table-bordered">
+        <thead><tr>
+            <td>Email</td>
+            <td>Name</td>
+            <td>Delete</td>
+        </tr></thead>
+        <tbody id="table_body">
+        {% for address in addresses %}
+            <tr>
+            <td>{{ address.email }}</td>
+            <td>
+                <input type="text" value="{{ address.name }}"
+                       name="address_name_{{ address.pk }}"
+                       class="form-control"
+                       maxlength="{{ name_length }}"/>
+            </td>
+            <td>
+                <input type="checkbox"
+                       name="address_{{ address.pk }}"/>
+            </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    <div class="btn-group">
+        <button type="submit" class="btn btn-default">Save</button>
+        <button class="btn btn-default" onclick="addEntry(); return false;">Add</button>
+    </div>
+    </form>
+
+{% endblock %}
+
+{% block scripts %}
+    <script type="text/javascript">
+    var newId = 0;
+    function addEntry()
+    {
+        var myId = String(newId);
+        var row = document.createElement("tr");
+        row.id = "new_row_" + myId;
+        var emailCol = document.createElement("td");
+        var nameCol = document.createElement("td");
+        var deleteCol = document.createElement("td");
+        var table = document.getElementById("table_body");
+
+        table.appendChild(row);
+        row.appendChild(emailCol);
+        row.appendChild(nameCol);
+        row.appendChild(deleteCol);
+
+        var email = document.createElement('input');
+        email.setAttribute('class', 'form-control');
+        email.type = 'text';
+        email.name = 'new_address_email_' + myId;
+        emailCol.appendChild(email);
+
+        var name = document.createElement("input");
+        name.setAttribute('class', 'form-control')
+        name.type = 'text';
+        name.name = 'new_address_name_' + myId;
+        name.maxLength = {{ name_length }};
+        nameCol.appendChild(name);
+
+        var del = document.createElement('button');
+        del.class = "btn btn-default";
+        del.type = "button";
+        del.textContent = "Delete";
+        del.onclick = function()
+        {
+            $('#' + row.id).remove();
+            return false;
+        };
+        deleteCol.appendChild(del);
+        newId++;
+    }
+    function deleteEntry(entry)
+    {
+
+    }
+
+    </script>
+{% endblock %}
