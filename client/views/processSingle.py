@@ -9,7 +9,7 @@ from django.shortcuts import render_to_response, get_object_or_404
 from django.core.urlresolvers import reverse
 
 import smtplib, mimetypes,traceback
-from email.utils import getaddresses
+from email.utils import getaddresses, formataddr
 from email.mime.multipart import MIMEMultipart
 
 from client.models import *
@@ -65,7 +65,7 @@ def send_mail(request, pk):
     mail = MIMEMultipart()
     for msg_part in msg.messagepart_set.all():
         mail.attach(convert_msg_part(msg_part))
-    mail['From'] = msg.sender
+    mail['From'] = formataddr((msg.owner.name, msg.owner.address))
     mail['To'] = msg.recipients
     mail['Subject'] = msg.subject
     msg.raw_message.save(msg.pk.__str__(), ContentFile(mail.as_string()))
@@ -150,6 +150,31 @@ def resend_mail(request, pk):
 
     return edit(request, copy.pk)
 
+
+def reply(request, pk):
+    owner = get_object_or_404(MailUser, user=request.user)
+    msg = get_object_or_404(Message, pk=pk, owner=owner)
+    msg_part = msg.messagepart_set.get(content_type='text/plain')
+
+    reply_msg = Message.objects.get(pk=new_msg(request))
+    reply_msg.subject = 'Re: ' + msg.subject
+    reply_msg.recipients = msg.sender
+
+    reply_part = reply_msg.messagepart_set.all()[0]
+    reply_part.file_path.save(reply_part.file_name, ContentFile(
+        unicode(msg.date) + u' ' + unicode(msg.sender) + u'\n'
+        u'========================================================\n' +
+        msg_part.file_path.read() +
+        u'========================================================\n\n' +
+        owner.signature
+    ))
+    msg_part.file_path.close()
+    reply_msg.save()
+    reply_part.save()
+
+    return edit(request, reply_msg.pk)
+
+
 # Busy box for all buttons.
 def processSingle(request, pk):
     if 'resend' in request.POST:
@@ -164,5 +189,7 @@ def processSingle(request, pk):
         return delete_mail(request, pk)
     elif 'new' in request.POST:
         return edit(request, new_msg(request))
+    elif 'reply' in request.POST:
+        return reply(request, pk)
     else:
         raise Http404

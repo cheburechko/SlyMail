@@ -7,7 +7,9 @@
             <div class="btn-group">
                 {% csrf_token %}
                 <input name="new" class="btn btn-default" value="New" type="submit"/>
-                {% if can_resend %}<input name="resend" class="btn btn-default" value="Resend" type="submit"/>{% endif %}
+                {% if can_resend %}<input name="resend" class="btn btn-default" value="Resend" type="submit"/>
+                {% else %}<input name="reply" class="btn btn-default" value="Reply" type="submit"/>
+                {% endif %}
                 <input name="delete" class="btn btn-default" value="Delete" type="submit"/>
             </div>
         </form>

@@ -13,6 +13,7 @@ from email.mime.image import MIMEImage
 from email.mime.base import MIMEBase
 from email.mime.text import MIMEText
 from email.encoders import encode_base64
+from email.header import decode_header
 
 from client.models import *
 from SlyMail.settings import SERVER_DOMAIN
@@ -83,8 +84,8 @@ def save_msg(request, pk):
         msg.subject = form.cleaned_data['subject']
         msg.recipients = form.cleaned_data['to']
         msg.date = datetime.datetime.now()
-
-        msg_part.file_path.delete()
+        if msg_part.file_path:
+            msg_part.file_path.delete()
         msg_part.file_path.save(msg_part.file_name,
                                 ContentFile(form.cleaned_data['body']))
 
@@ -149,5 +150,12 @@ def new_msg(request):
 
     msg_part.file_name = msg_part.pk.__str__()
     msg_part.file_path.save(msg_part.file_name,
-                            ContentFile(''))
+                            ContentFile(msg.owner.signature))
     return msg.pk
+
+
+def header_to_unicode(header):
+    default_charset = 'ASCII'
+    buffer = decode_header(header)
+    return u' '.join(unicode(head[0], head[1] or default_charset)
+                          for head in buffer)

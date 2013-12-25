@@ -1,10 +1,11 @@
 from django.core.management.base import NoArgsCommand
 from SlyMail.settings import *
-from client.models import Message, MessagePart, MailUser
+from client.views.helpers import header_to_unicode
+from client.models import *
 from django.core.exceptions import ObjectDoesNotExist
 from datetime import datetime
 from email.parser import Parser
-from email.header import decode_header
+from email.utils import getaddresses, parseaddr
 from django.core.files.base import ContentFile
 import traceback
 
@@ -25,35 +26,43 @@ class MailSMTPServer(smtpd.SMTPServer):
             list = recipient.split('@')
             if list[1] != SERVER_DOMAIN:
                 # Forward outgoing messages.
-                #  if peer[0] == SMTP_LOCAL_ADDR[0]:
-                #      try:
-                #         server = smtplib.SMTP(SMTP_LOCAL_ADDR[0], SMTP_LOCAL_ADDR[1])
-                #         if EMAIL_USE_TLS:
-                #              server.starttls()
-                #              server.ehlo()
+                #   if peer[0] == SMTP_LOCAL_ADDR[0]:
+                #       try:
+                #          server = smtplib.SMTP(EMAIL_HOST, EMAIL_PORT)
+                #          server.set_debuglevel(True)
+                #          server.ehlo()
+                #          if EMAIL_USE_TLS:
+                #               server.starttls()
+                #               server.ehlo()
                 #
-                #         server.login(EMAIL_HOST_USER, EMAIL_HOST_PASSWORD)
-                #         server.sendmail(mailfrom, rcpttos, data)
-                #      finally:
-                #         server.quit()
-                 continue
+                #          server.login(EMAIL_HOST_USER, EMAIL_HOST_PASSWORD)
+                #          server.sendmail(mailfrom, rcpttos, data)
+                #       finally:
+                #          server.quit()
+                continue
 
             try:
                 user = MailUser.objects.get(user__username=list[0])
-                message = Message()
-                message.sender = mailfrom
-                message.owner = user
-                message.date = datetime.now()
-
                 parser = Parser()
                 mail = parser.parsestr(data)
-                message.subject = mail['Subject']
-                message.type = "Inbox"
 
-                recipients = decode_header(mail['To'])
-                default_charset = 'ASCII'
-                message.recipients = u' '.join(unicode(head[0], head[1] or default_charset)
-                          for head in recipients)
+                message = Message()
+                message.sender =  header_to_unicode(mail['From'])
+                message.owner = user
+                message.date = datetime.now()
+                message.subject = header_to_unicode(mail['Subject'])
+                message.type = "Inbox"
+                message.recipients = header_to_unicode(mail['To'])
+
+                all_recipients = getaddresses([message.recipients])
+
+                for realname, address in all_recipients:
+                    AddressBook.objects .get_or_create(owner=user, email=address,
+                                              defaults={'name': realname})
+
+                realname, address = parseaddr(message.sender)
+                AddressBook.objects.get_or_create(owner=user, email=address,
+                                          defaults={'name': realname})
 
                 # Save raw content just in case
                 message.save()

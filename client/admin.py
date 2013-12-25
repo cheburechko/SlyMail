@@ -2,9 +2,11 @@ from django.contrib import admin
 from client.models import *
 
 
-class MessageAdmin(admin.ModelAdmin):
-    list_display = ['sender', 'type', 'subject', 'recipients', 'date']
+class AddressBookAdmin(admin.ModelAdmin):
+    list_display = ['owner', 'name', 'email']
 
+class MessageAdmin(admin.ModelAdmin):
+    list_display = ['owner', 'type', 'subject', 'recipients', 'date']
 
 class MessagePartAdmin(admin.ModelAdmin):
     def owner(self, obj):
@@ -20,5 +22,5 @@ class MessagePartAdmin(admin.ModelAdmin):
 
 admin.site.register(Message, MessageAdmin)
 admin.site.register(MessagePart, MessagePartAdmin)
-admin.site.register(AddressBook)
+admin.site.register(AddressBook, AddressBookAdmin)
 admin.site.register(MailUser)

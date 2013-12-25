@@ -9,11 +9,14 @@ class MailUser(models.Model):
     address = models.EmailField(unique=True)
     name = models.CharField(max_length=80, blank=True)
     signature = models.TextField(blank=True)
+
+    def __unicode__(self):
+        return unicode(self.user.username)
     # other data comes along
 
 
 class AddressBook(models.Model):
-    owner = models.ForeignKey(to=User)
+    owner = models.ForeignKey(to=MailUser)
     email = models.EmailField()
     name = models.CharField(max_length=100, blank=True)
 
