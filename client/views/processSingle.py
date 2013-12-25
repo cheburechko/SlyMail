@@ -17,7 +17,8 @@ from client.views.helpers import *
 
 
 def edit(request, pk):
-    msg = Message.objects.get(pk=pk, owner__user=request.user)
+    owner = get_object_or_404(MailUser, user=request.user)
+    msg = get_object_or_404(Message, pk=pk, owner=owner)
     try:
         msg_part = msg.messagepart_set.get(content_type='text/plain')
     except:
@@ -27,11 +28,17 @@ def edit(request, pk):
                          'subject': msg.subject,
                          'body': msg_part.file_path.read()})
     msg_part.file_path.close()
+
+    addresses = []
+    for address in AddressBook.objects.filter(owner=owner):
+        addresses.append(formataddr((address.name, address.email)))
+
     return render_to_response(template_name='edit_message.html',
                               dictionary={'form': form,
                                           'msg_pk': msg.pk,
                                           'msg_part_pk': msg_part.pk,
-                                          'attachments': collect_attachments(msg)},
+                                          'attachments': collect_attachments(msg),
+                                          'addresses': addresses},
                               context_instance=RequestContext(request)
     )
 

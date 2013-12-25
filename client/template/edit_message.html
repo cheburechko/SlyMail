@@ -40,93 +40,139 @@
 
 {% block scripts %}
     <script src="{{ STATIC_URL }}jquery.form.min.js"></script>
+    <script src="http://code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
+    <link rel="stylesheet" href="http://code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css">
     <script>
-        /**
-         * setup JQuery's AJAX methods to setup CSRF token in the request before sending it off.
-         * http://stackoverflow.com/questions/5100539/django-csrf-check-failing-with-an-ajax-post-request
-         */
+    /**
+     * setup JQuery's AJAX methods to setup CSRF token in the request before sending it off.
+     * http://stackoverflow.com/questions/5100539/django-csrf-check-failing-with-an-ajax-post-request
+     */
 
-        function getCookie(name) {
-            var cookieValue = null;
-            if (document.cookie && document.cookie != '') {
-                var cookies = document.cookie.split(';');
-                for (var i = 0; i < cookies.length; i++) {
-                    var cookie = jQuery.trim(cookies[i]);
+    function getCookie(name) {
+        var cookieValue = null;
+        if (document.cookie && document.cookie != '') {
+            var cookies = document.cookie.split(';');
+            for (var i = 0; i < cookies.length; i++) {
+                var cookie = jQuery.trim(cookies[i]);
 // Does this cookie string begin with the name we want?
 
-                    if (cookie.substring(0, name.length + 1) == (name + '=')) {
-                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                        break;
-                    }
+                if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
                 }
             }
-            return cookieValue;
         }
+        return cookieValue;
+    }
 
-        $.ajaxSetup({
-            beforeSend: function (xhr, settings) {
-                if (!(/^http:.*/.test(settings.url) || /^https:.*/.test(settings.url))) {
+    $.ajaxSetup({
+        beforeSend: function (xhr, settings) {
+            if (!(/^http:.*/.test(settings.url) || /^https:.*/.test(settings.url))) {
 // Only send the token to relative URLs i.e. locally.
-                    xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
-                }
+                xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
             }
+        }
+    });
+
+    // wait for the DOM to be loaded
+    $(document).ready(function() {
+         var options = {
+            beforeSubmit:  showRequest,
+            uploadProgress:showProgress,
+            clearForm:     true,
+            success:       showResponse,
+            error:         showError
+         }
+        $('#fileForm').ajaxForm(options);
+        $('#file_choice').change(function() {
+            $('#fileForm').submit();
         });
+    });
 
-        // wait for the DOM to be loaded
-        $(document).ready(function() {
-             var options = {
-                beforeSubmit:  showRequest,
-                uploadProgress:showProgress,
-                clearForm:     true,
-                success:       showResponse,
-                error:         showError
-             }
-            $('#fileForm').ajaxForm(options);
-            $('#file_choice').change(function() {
-                $('#fileForm').submit();
-            });
-        });
+    var uploadReady = true;
 
-        var uploadReady = true;
-
-        function showRequest(arr, $form, options)
+    function showRequest(arr, $form, options)
+    {
+        if (uploadReady)
         {
-            if (uploadReady)
-            {
-                $('#result').append(
-                    '<div class="row" id="pending">\
-                        <div class="form-row"  id="pending-text"></div>\
-                        <div class="progress col-sm-4 progress-striped active form-row">\
-                            <div class="progress-bar" role="progressbar" style="width: 0%;"\
-                                 id="pending-bar">\
-                                <span class="sr-only" id="pending-span">0% Complete</span>\
-                            </div>\
+            $('#result').append(
+                '<div class="row" id="pending">\
+                    <div class="form-row"  id="pending-text"></div>\
+                    <div class="progress col-sm-4 progress-striped active form-row">\
+                        <div class="progress-bar" role="progressbar" style="width: 0%;"\
+                             id="pending-bar">\
+                            <span class="sr-only" id="pending-span">0% Complete</span>\
                         </div>\
-                    </div>'
-                )
-                $('#pending-text').text($('#file_choice').val())
-                uploadReady = false;
-                return true;
+                    </div>\
+                </div>'
+            )
+            $('#pending-text').text($('#file_choice').val())
+            uploadReady = false;
+            return true;
+        }
+        else
+            return false;
+    }
+
+    function showProgress(event, position, total, percent)
+    {
+        $('#pending-bar').attr('style', 'width: ' + String(percent) + '%;')
+        $('#pending-span').text(String(percent) + '% Complete');
+    }
+
+    function showError()
+    {
+        uploadReady = true;
+        $('#pending').html("Failed.").removeAttr('id');
+    }
+
+    function showResponse(responseText, statusText, xhr, $form)  {
+        $('#pending').html(responseText).removeAttr('id');
+        uploadReady = true;
+    }
+    $(function() {
+    var availableTags = [
+        {% for address in addresses %}
+            '{{ address|safe }}',
+        {% endfor %}
+    ];
+    function split( val ) {
+        return val.split( /,\s*/ );
+    }
+    function extractLast( term ) {
+        return split( term ).pop();
+    }
+    $( "#id_to")
+        // don't navigate away from the field on tab when selecting an item
+        .bind("keydown", function (event) {
+            if (event.keyCode === $.ui.keyCode.TAB &&
+                    $(this).data("ui-autocomplete").menu.active) {
+                event.preventDefault();
             }
-            else
+        })
+        .autocomplete({
+            minLength: 0,
+            source: function (request, response) {
+                // delegate back to autocomplete, but extract the last term
+                response($.ui.autocomplete.filter(
+                        availableTags, extractLast(request.term)));
+            },
+            focus: function () {
+                // prevent value inserted on focus
                 return false;
-        }
-
-        function showProgress(event, position, total, percent)
-        {
-            $('#pending-bar').attr('style', 'width: ' + String(percent) + '%;')
-            $('#pending-span').text(String(percent) + '% Complete');
-        }
-
-        function showError()
-        {
-            uploadReady = true;
-            $('#pending').html("Failed.").removeAttr('id');
-        }
-
-        function showResponse(responseText, statusText, xhr, $form)  {
-            $('#pending').html(responseText).removeAttr('id');
-            uploadReady = true;
-        }
+            },
+            select: function (event, ui) {
+                var terms = split(this.value);
+                // remove the current input
+                terms.pop();
+                // add the selected item
+                terms.push(ui.item.value);
+                // add placeholder to get the comma-and-space at the end
+                terms.push("");
+                this.value = terms.join(", ");
+                return false;
+            }
+        });
+    });
     </script>
 {% endblock %}
