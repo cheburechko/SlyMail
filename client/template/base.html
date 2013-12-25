@@ -32,18 +32,19 @@
               <span class="icon-bar"></span>
               <span class="icon-bar"></span>
             </button>
-            <a class="navbar-brand" href="#">Brand</a>
+            <a class="navbar-brand" href="{% url inbox %}">SlyMail</a>
         </div>
 
           <div class="navbar-collapse collapse">
               <ul class="nav navbar-nav">
-                  <li>
-                      {% if user.is_authenticated %}
-                          <a href="{% url logout %}?next={{ request.path }}">Logout</a>
-                      {% else %}
-                          <a href="{% url register %}?next={{ request.path }}">Register</a>
-                      {% endif %}
-                  </li>
+                  {% if user.is_authenticated %}
+                      <li><a href="{% url logout %}">Logout</a></li>
+                      <li><a href="{% url settings %}">Settings</a></li>
+                      <li><a href="{% url address_book %}">Address Book</a></li>
+                      <li><a href="{% url files %}">Files</a></li>
+                  {% else %}
+                      <li><a href="{% url register %}">Register</a></li>
+                  {% endif %}
               </ul>
           </div><!--/.nav-collapse -->
       </div>
