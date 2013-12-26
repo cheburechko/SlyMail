@@ -20,8 +20,9 @@ def edit(request, pk):
     owner = get_object_or_404(MailUser, user=request.user)
     msg = get_object_or_404(Message, pk=pk, owner=owner)
     try:
-        msg_part = msg.messagepart_set.get(content_type='text/plain')
+        msg_part = msg.messagepart_set.get(is_attachment=False)
     except:
+        traceback.print_exc()
         raise Http404
 
     form = EditMailForm({'to': msg.recipients,
@@ -62,7 +63,7 @@ def send_mail(request, pk):
     # Check email addresses consistency.
     recipients = []
     for (name, addr) in getaddresses([msg.recipients]):
-        if not EMAIL_REGEX.match(addr):
+        if not EMAIL_REGEX.match(addr) and addr != "":
             messages.add_message(request, messages.ERROR,
                                  '"'+addr+'" is not a valid email address.')
             return HttpResponseRedirect(reverse('edit', args=[msg.pk]))
@@ -102,6 +103,7 @@ def upload(request, pk):
         uploaded_file = request.FILES['file']
 
         msg_part.file_name = uploaded_file.name
+        msg_part.is_attachment = True
         msg_part.message = msg
         msg_part.file_size = uploaded_file.size
 
@@ -148,6 +150,7 @@ def resend_mail(request, pk):
         copy_part.file_name = part.file_name
         copy_part.file_size = part.file_size
         copy_part.message = copy
+        copy_part.is_attachment = part.is_attachment
         copy_part.save()
 
         copy_part.file_path.save(part.file_name,
@@ -161,7 +164,7 @@ def resend_mail(request, pk):
 def reply(request, pk):
     owner = get_object_or_404(MailUser, user=request.user)
     msg = get_object_or_404(Message, pk=pk, owner=owner)
-    msg_part = msg.messagepart_set.get(content_type='text/plain')
+    msg_part = msg.messagepart_set.get(is_attachment=False)
 
     reply_msg = Message.objects.get(pk=new_msg(request))
     reply_msg.subject = 'Re: ' + msg.subject

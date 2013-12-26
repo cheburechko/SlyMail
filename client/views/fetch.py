@@ -7,6 +7,7 @@ from django.core.urlresolvers import reverse
 from client.models import *
 from client.views.helpers import renderSize, collect_attachments
 
+
 def download(request, pk):
     user = get_object_or_404(MailUser, user=request.user)
     msg_part = get_object_or_404(MessagePart, message__owner=user, pk=pk)
@@ -18,18 +19,9 @@ def download(request, pk):
 
 
 def fetchMail(request, pk):
-    user = get_object_or_404(MailUser, user=request.user)
-    msg = get_object_or_404(Message, owner=user, pk=pk)
-    msg_part = MessagePart.objects.filter(message=msg)
+    msg = get_object_or_404(Message, owner__user=request.user, pk=pk)
 
-    html_msg = msg_part.filter(content_type='text/html')
-    text_list = []
-
-    if html_msg.count() > 0:
-        text_list = html_msg.all()
-    else:
-        text_list = msg_part.filter(content_type='text/plain').all()
-
+    text_list = msg.messagepart_set.filter(is_attachment=False).all()
     output = ""
     for text in text_list:
         output += text.file_path.read()

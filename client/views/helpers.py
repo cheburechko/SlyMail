@@ -14,10 +14,9 @@ from email.mime.base import MIMEBase
 from email.mime.text import MIMEText
 from email.encoders import encode_base64
 from email.header import decode_header
+from email.utils import encode_rfc2231
 
 from client.models import *
-from SlyMail.settings import SERVER_DOMAIN
-from client.widget import BootstrapTextWidget
 
 
 class EditMailForm(forms.Form):
@@ -60,8 +59,7 @@ def renderSize(size):
 
 
 def collect_attachments(msg):
-    attachment_parts = msg.messagepart_set.exclude(content_type='text/html')\
-                                          .exclude(content_type='text/plain')
+    attachment_parts = msg.messagepart_set.exclude(is_attachment=False)
     attachments = []
     for attachment in attachment_parts.all():
         attachments.append({"url": reverse('download', args=[attachment.pk]),
@@ -114,7 +112,9 @@ def convert_msg_part(msg_part):
         msg.set_payload(data)
         encode_base64(msg)
 
-    msg.add_header('Content-Disposition', 'attachment', filename=msg_part.file_name)
+    if msg_part.is_attachment:
+        msg.add_header('Content-Disposition', 'attachment',
+                       filename=('utf-8', 'ru', msg_part.file_name.encode('utf-8')))
     return msg
 
 

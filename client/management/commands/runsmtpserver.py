@@ -24,22 +24,23 @@ class MailSMTPServer(smtpd.SMTPServer):
 
         for recipient in rcpttos:
             list = recipient.split('@')
-            if list[1] != SERVER_DOMAIN:
-                # Forward outgoing messages.
-                #   if peer[0] == SMTP_LOCAL_ADDR[0]:
-                #       try:
-                #          server = smtplib.SMTP(EMAIL_HOST, EMAIL_PORT)
-                #          server.set_debuglevel(True)
-                #          server.ehlo()
-                #          if EMAIL_USE_TLS:
-                #               server.starttls()
-                #               server.ehlo()
-                #
-                #          server.login(EMAIL_HOST_USER, EMAIL_HOST_PASSWORD)
-                #          server.sendmail(mailfrom, rcpttos, data)
-                #       finally:
-                #          server.quit()
-                continue
+            if len(list) > 1:
+                if list[1] != SERVER_DOMAIN:
+                    # Forward outgoing messages.
+                    #   if peer[0] == SMTP_LOCAL_ADDR[0]:
+                    #       try:
+                    #          server = smtplib.SMTP(EMAIL_HOST, EMAIL_PORT)
+                    #          server.set_debuglevel(True)
+                    #          server.ehlo()
+                    #          if EMAIL_USE_TLS:
+                    #               server.starttls()
+                    #               server.ehlo()
+                    #
+                    #          server.login(EMAIL_HOST_USER, EMAIL_HOST_PASSWORD)
+                    #          server.sendmail(mailfrom, rcpttos, data)
+                    #       finally:
+                    #          server.quit()
+                    continue
 
             try:
                 user = MailUser.objects.get(user__username=list[0])
@@ -80,6 +81,10 @@ class MailSMTPServer(smtpd.SMTPServer):
                     msg_part.content_type = part.get_content_type()
                     part_data = part.get_payload(decode=True)
                     msg_part.file_size = len(part_data)
+
+                    if part['Content-Disposition'] is not None:
+                        msg_part.is_attachment = True;
+
                     msg_part.save()
 
                     part_name = part.get_filename(msg_part.pk.__str__())

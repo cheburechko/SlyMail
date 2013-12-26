@@ -50,3 +50,4 @@ class MessagePart(models.Model):
     file_path = models.FileField(upload_to=get_upload_path)
     file_name = models.CharField(max_length=255)
     file_size = models.IntegerField()
+    is_attachment = models.BooleanField(default=False)
