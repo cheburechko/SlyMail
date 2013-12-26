@@ -12,14 +12,32 @@ from django.core.urlresolvers import reverse
 
 from client.models import MailUser
 from SlyMail.settings import SERVER_DOMAIN
+from client.views.helpers import BootstrapForm
 
-class LoginForm(forms.Form):
-    username = fields.CharField(max_length=30, min_length=3)
-    password = fields.CharField(max_length=30, widget=forms.PasswordInput)
+class LoginForm(BootstrapForm):
+    username = fields.CharField(
+        max_length=30,
+        min_length=3,
+        widget=forms.TextInput(attrs={'class': 'form-control'})
+    )
+    password = fields.CharField(
+        max_length=30,
+        widget=forms.PasswordInput(attrs={'class': 'form-control'})
+    )
 
 
 class RegistrationForm(LoginForm):
-    real_name = fields.CharField(max_length=80, required=False, initial='Anonymous')
+    real_name = fields.CharField(
+        max_length=80, required=False, initial='Anonymous',
+        widget=forms.TextInput(attrs={'class': 'form-control'})
+    )
+
+
+def home(request):
+    if request.user.is_authenticated():
+        return HttpResponseRedirect(reverse('client'))
+    else:
+        return HttpResponseRedirect(reverse('login'))
 
 
 def login(request):

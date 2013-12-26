@@ -88,7 +88,7 @@ def save_msg(request, pk):
         if msg_part.file_path:
             msg_part.file_path.delete()
         msg_part.file_path.save(msg_part.file_name,
-                                ContentFile(form.cleaned_data['body']))
+                                ContentFile(form.cleaned_data['body'].encode('utf-8')))
 
         msg.save()
         msg_part.save()
@@ -105,7 +105,7 @@ def convert_msg_part(msg_part):
 
     if maintype == 'text':
         # Warning! Encoding problems are awaited.
-        msg = MIMEText(data, _subtype=subtype)
+        msg = MIMEText(data, _subtype=subtype, _charset='utf-8')
     elif maintype == 'image':
         msg = MIMEImage(data, _subtype=subtype)
     elif maintype == 'audio':

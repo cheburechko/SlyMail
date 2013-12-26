@@ -1,14 +1,15 @@
 {% extends "base.html" %}
 
-{% block title %}Вход{% endblock %}
-{% block head %}Вход{% endblock %}
+{% block title %}Login{% endblock %}
+{% block head %}{% endblock %}
 
 {% block content %}
-<form action='./?next={{ next }}' method='POST'>
-	{% csrf_token %}
-	{{ form.as_p }}
-	<input type='submit' value='Login'/>
+<form action='{% url login %}' method='POST' class='form-horizontal col-lg-4 col-lg-offset-4'>
+    <div class="form-group">
+        <h2>Login</h2>
+        {% csrf_token %}
+        {{ form.render }}
+        <input type='submit' value='Login' class='btn btn-block btn-primary btn-lg'/>
+    </div>
 </form>
-
-<a href='{% url register %}?next={{ next }}'>Регистрация</a>
 {% endblock %}

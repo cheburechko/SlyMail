@@ -27,19 +27,20 @@ class MailSMTPServer(smtpd.SMTPServer):
             if len(list) > 1:
                 if list[1] != SERVER_DOMAIN:
                     # Forward outgoing messages.
-                    #   if peer[0] == SMTP_LOCAL_ADDR[0]:
-                    #       try:
-                    #          server = smtplib.SMTP(EMAIL_HOST, EMAIL_PORT)
-                    #          server.set_debuglevel(True)
-                    #          server.ehlo()
-                    #          if EMAIL_USE_TLS:
-                    #               server.starttls()
-                    #               server.ehlo()
-                    #
-                    #          server.login(EMAIL_HOST_USER, EMAIL_HOST_PASSWORD)
-                    #          server.sendmail(mailfrom, rcpttos, data)
-                    #       finally:
-                    #          server.quit()
+                    if (peer[0] == SMTP_LOCAL_ADDR[0]) and EMAIL_OUTGOING:
+                        try:
+                            server = smtplib.SMTP(EMAIL_HOST, EMAIL_PORT)
+                            server.set_debuglevel(True)
+                            server.ehlo()
+                            if EMAIL_USE_TLS:
+                               server.starttls()
+                               server.ehlo()
+
+                            server.login(EMAIL_HOST_USER, EMAIL_HOST_PASSWORD)
+                            server.sendmail(mailfrom, rcpttos, data)
+                        finally:
+                            server.quit()
+
                     continue
 
             try:

@@ -1,13 +1,16 @@
 {% extends "base.html" %}
 
-{% block title %}Регистрация{% endblock %}
-{% block head %}Регистрация{% endblock %}
+{% block title %}Registration{% endblock %}
+{% block head %}{% endblock %}
 
 {% block content %}
-<form action='{% url register %}' method='POST'>
+<form action='{% url register %}' method='POST' class="form-horizontal col-lg-4 col-lg-offset-4">
+    <div class="form-group">
+    <h2>Registration</h2>
 	{% csrf_token %}
-	{{ form.as_p }}
-	<input type='submit' value='Регистрация'/>
+	{{ form.render }}
+	<input type='submit' value='Register' class="btn btn-primary btn-block btn-lg"/>
+    </div>
 </form>
 {% endblock %}
 
