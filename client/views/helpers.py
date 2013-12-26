@@ -14,19 +14,11 @@ from email.mime.base import MIMEBase
 from email.mime.text import MIMEText
 from email.encoders import encode_base64
 from email.header import decode_header
-from email.utils import encode_rfc2231
 
 from client.models import *
 
 
-class EditMailForm(forms.Form):
-    to = fields.CharField(required=False,
-                          widget=forms.TextInput(attrs={'class': 'form-control'}))
-    subject = fields.CharField(required=False,
-                               widget=forms.TextInput(attrs={'class': 'form-control'}))
-    body = fields.CharField(widget=forms.Textarea(attrs={'class': 'form-control', 'rows':15}),
-                            required=False, label='')
-
+class BootstrapForm(forms.Form):
     def render(self):
         return self._html_output(
             normal_row = u'<div class="input-group">' \
@@ -37,6 +29,16 @@ class EditMailForm(forms.Form):
             help_text_html = u'<div class="help-text">%s</div>',
             errors_on_separate_row = False
         )
+
+class EditMailForm(BootstrapForm):
+    to = fields.CharField(required=False,
+                          widget=forms.TextInput(attrs={'class': 'form-control'}))
+    subject = fields.CharField(required=False,
+                               widget=forms.TextInput(attrs={'class': 'form-control'}))
+    body = fields.CharField(widget=forms.Textarea(attrs={'class': 'form-control', 'rows':15}),
+                            required=False, label='')
+
+
 
 
 def renderSize(size):
@@ -150,7 +152,7 @@ def new_msg(request):
 
     msg_part.file_name = msg_part.pk.__str__()
     msg_part.file_path.save(msg_part.file_name,
-                            ContentFile(msg.owner.signature))
+                            ContentFile(u'\n\n' + msg.owner.signature))
     return msg.pk
 
 

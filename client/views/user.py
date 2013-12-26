@@ -3,12 +3,41 @@ from django.http import Http404
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
 from django.core.urlresolvers import reverse
+from django.forms import *
+from django.contrib import messages
 
 from client.models import *
-from client.views.helpers import renderSize
+from client.views.helpers import renderSize, BootstrapForm
+
+
+class SettingsForm(BootstrapForm):
+    mailbox = EmailField(widget=TextInput(attrs={'class': 'form-control'}))
+    name = CharField(widget=TextInput(attrs={'class': 'form-control'}),
+                     max_length=MailUser._meta.get_field('name').max_length)
+    signature = CharField(required=False, widget=Textarea(attrs={'class': 'form-control'}))
+
 
 def settings(request):
-    raise Http404
+    owner = get_object_or_404(MailUser, user=request.user)
+
+    if request.method == 'POST':
+        form = SettingsForm(request.POST)
+        if form.is_valid():
+            owner.name = form.cleaned_data['name']
+            owner.signature = form.cleaned_data['signature']
+            owner.address = form.cleaned_data['mailbox']
+            owner.save()
+            messages.add_message(request, messages.SUCCESS, 'Mail was successfully saved.')
+        else:
+            messages.add_message(request, messages.ERROR, form.errors)
+    else:
+        form = SettingsForm({'name': owner.name,
+                             'mailbox': owner.address,
+                             'signature': owner.signature})
+
+    return render_to_response(template_name='settings.html',
+                              dictionary={'form': form},
+                              context_instance=RequestContext(request))
 
 
 def files(request):
