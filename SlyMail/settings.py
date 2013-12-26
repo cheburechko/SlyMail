@@ -59,7 +59,7 @@ USE_L10N = True
 USE_TZ = True
 
 
-# Some commons stuff.
+# Some common stuff.
 from django.contrib.messages import constants as messages
 import re
 
