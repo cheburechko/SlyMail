@@ -24,8 +24,11 @@
 
     <div id='result'>
     {%  for attachment in attachments  %}
-        <div class="row">
+        <div class="row" id="attachment_{{ attachment.pk }}">
         <a href="{{ attachment.url }}">{{ attachment.name }}</a> - {{ attachment.size }}
+        <button class="btn btn-default" type="button" onclick="deleteFile({{ attachment.pk }})">
+            <span class="glyphicon glyphicon-remove"></span>
+        </button>
         </div>
     {% endfor %}
     </div>
@@ -127,9 +130,25 @@
     }
 
     function showResponse(responseText, statusText, xhr, $form)  {
-        $('#pending').html(responseText).removeAttr('id');
+        //$('#pending').html(responseText).removeAttr('id');
+        $('#pending').remove();
+        $('#result').append(responseText);
         uploadReady = true;
     }
+
+    function deleteFile(pk)
+    {
+        $.ajax({
+            method: "POST",
+            url:    "{% url deleteAttachment %}",
+            data:   {pk: pk}
+        });
+        $('#attachment_' + String(pk)).remove();
+        return false;
+    }
+
+
+    // Autocomplete
     $(function() {
     var availableTags = [
         {% for address in addresses %}

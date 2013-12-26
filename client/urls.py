@@ -24,6 +24,7 @@ urlpatterns = patterns('',
     url(r'^process$', 'client.views.process.process', name="process"),
     url(r'^process/(?P<pk>\d+)$', 'client.views.processSingle.processSingle', name="processSingle"),
     url(r'^edit/(?P<pk>\d+)$', 'client.views.processSingle.edit', name='edit'),
+    url(r'^delete_attachment$', 'client.views.processSingle.deleteAttachment', name='deleteAttachment'),
 
     url(r'^settings$', 'client.views.user.settings', name='settings'),
     url(r'^address_book$', 'client.views.user.address_book', name='address_book'),

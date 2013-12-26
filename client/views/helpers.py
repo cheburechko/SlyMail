@@ -66,7 +66,8 @@ def collect_attachments(msg):
     for attachment in attachment_parts.all():
         attachments.append({"url": reverse('download', args=[attachment.pk]),
                             "name": attachment.file_name,
-                            "size": renderSize(os.path.getsize(attachment.file_path.path))})
+                            "size": renderSize(os.path.getsize(attachment.file_path.path)),
+                            "pk": attachment.pk})
     return attachments
 
 

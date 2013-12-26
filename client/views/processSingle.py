@@ -44,6 +44,17 @@ def edit(request, pk):
     )
 
 
+def deleteAttachment(request):
+    owner = get_object_or_404(MailUser, user=request.user)
+    if 'pk' in request.POST:
+        pk = int(request.POST['pk'])
+        part = get_object_or_404(MessagePart, message__owner=owner,
+                                 pk=pk)
+        part.delete()
+
+    return HttpResponse()
+
+
 def save_mail(request, pk):
     result = save_msg(request, pk)
 
@@ -115,8 +126,14 @@ def upload(request, pk):
         msg_part.file_path.save(msg_part.file_name, uploaded_file)
         msg_part.save()
 
-        return HttpResponse(u'<a href="{:s}">{:s}</a> - {:s}'\
-            .format(reverse('download', args=[msg_part.pk]),
+        return HttpResponse(u'<div class="row" id="attachment_{0}">'
+                            u'<a href="{1}">{2}</a> - {3}'
+                            u'<button class="btn btn-default" type="button" onclick="deleteFile({0})">'
+                            u'<span class="glyphicon glyphicon-remove"></span>'
+                            u'</button>'
+                            u'</div>'\
+            .format(msg_part.pk,
+                    reverse('download', args=[msg_part.pk]),
                     msg_part.file_name,
                     renderSize(msg_part.file_size)))
     except:
